@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-options-table
+      author: Nursultan
+      changes:
+        - createTable:
+            tableName: options
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: questionId
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_options_questionId
+                    references: questions(id)
+              - column:
+                  name: optionText
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: isCorrect
+                  type: boolean
+                  constraints:
+                    nullable: false

@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-questions-table
+      author: Nursultan
+      changes:
+        - createTable:
+            tableName: questions
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: quizId
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_questions_quizId
+                    references: quizzes(id)
+              - column:
+                  name: questionText
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

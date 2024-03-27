@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-categories-data
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: categories
+            columns:
+              - column:
+                  name: name
+                  value: "Geography"
+        - insert:
+            tableName: categories
+            columns:
+              - column:
+                  name: name
+                  value: "Science"
+        - insert:
+            tableName: categories
+            columns:
+              - column:
+                  name: name
+                  value: "Programming"

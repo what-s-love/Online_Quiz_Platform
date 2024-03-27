@@ -1,0 +1,84 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-sample-question-data-1
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: questions
+            columns:
+              - column:
+                  name: quizId
+                  value: 1
+              - column:
+                  name: questionText
+                  value: "Какая столица Франции?"
+
+  - changeSet:
+      id: insert-sample-question-data-2
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: questions
+            columns:
+              - column:
+                  name: quizId
+                  value: 1
+              - column:
+                  name: questionText
+                  value: "Столица Канады - это..."
+
+  - changeSet:
+      id: insert-sample-question-data-3
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: questions
+            columns:
+              - column:
+                  name: quizId
+                  value: 2
+              - column:
+                  name: questionText
+                  value: "Кто написал 'Мона Лизу'?"
+
+  - changeSet:
+      id: insert-sample-question-data-4
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: questions
+            columns:
+              - column:
+                  name: quizId
+                  value: 2
+              - column:
+                  name: questionText
+                  value: "В каком веке началась Ренессанс?"
+
+  - changeSet:
+      id: insert-sample-question-data-5
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: questions
+            columns:
+              - column:
+                  name: quizId
+                  value: 3
+              - column:
+                  name: questionText
+                  value: "Что такое список в Python?"
+
+  - changeSet:
+      id: insert-sample-question-data-6
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: questions
+            columns:
+              - column:
+                  name: quizId
+                  value: 3
+              - column:
+                  name: questionText
+                  value: "Какой оператор используется для деления в Python?"

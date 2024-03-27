@@ -1,0 +1,168 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-sample-option-data-question-1
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 1
+              - column:
+                  name: optionText
+                  value: "Париж"
+              - column:
+                  name: isCorrect
+                  value: true
+
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 1
+              - column:
+                  name: optionText
+                  value: "Лондон"
+              - column:
+                  name: isCorrect
+                  value: false
+
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 1
+              - column:
+                  name: optionText
+                  value: "Мадрид"
+              - column:
+                  name: isCorrect
+                  value: false
+
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 1
+              - column:
+                  name: optionText
+                  value: "Берлин"
+              - column:
+                  name: isCorrect
+                  value: false
+
+  - changeSet:
+      id: insert-sample-option-data-question-2
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 2
+              - column:
+                  name: optionText
+                  value: "Оттава"
+              - column:
+                  name: isCorrect
+                  value: true
+
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 2
+              - column:
+                  name: optionText
+                  value: "Торонто"
+              - column:
+                  name: isCorrect
+                  value: false
+
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 2
+              - column:
+                  name: optionText
+                  value: "Монреаль"
+              - column:
+                  name: isCorrect
+                  value: false
+
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 2
+              - column:
+                  name: optionText
+                  value: "Ванкувер"
+              - column:
+                  name: isCorrect
+                  value: false
+
+  - changeSet:
+      id: insert-sample-option-data-question-3
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 3
+              - column:
+                  name: optionText
+                  value: "Леонардо да Винчи"
+              - column:
+                  name: isCorrect
+                  value: true
+
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 3
+              - column:
+                  name: optionText
+                  value: "Микеланджело"
+              - column:
+                  name: isCorrect
+                  value: false
+
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 3
+              - column:
+                  name: optionText
+                  value: "Рафаэль"
+              - column:
+                  name: isCorrect
+                  value: false
+
+        - insert:
+            tableName: options
+            columns:
+              - column:
+                  name: questionId
+                  value: 3
+              - column:
+                  name: optionText
+                  value: "Донателло"
+              - column:
+                  name: isCorrect
+                  value: false

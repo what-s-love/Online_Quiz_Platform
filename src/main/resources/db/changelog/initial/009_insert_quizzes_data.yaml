@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-sample-quiz-data-1
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: quizzes
+            columns:
+              - column:
+                  name: title
+                  value: "Столицы мира"
+              - column:
+                  name: description
+                  value: "Тест на знание столиц различных стран."
+              - column:
+                  name: creatorId
+                  value: 1
+              - column:
+                  name: categoryId
+                  value: 1
+
+  - changeSet:
+      id: insert-sample-quiz-data-2
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: quizzes
+            columns:
+              - column:
+                  name: title
+                  value: "История искусства"
+              - column:
+                  name: description
+                  value: "Викторина по мировой истории искусства."
+              - column:
+                  name: creatorId
+                  value: 2
+              - column:
+                  name: categoryId
+                  value: 2
+
+  - changeSet:
+      id: insert-sample-quiz-data-3
+      author: Nursultan
+      changes:
+        - insert:
+            tableName: quizzes
+            columns:
+              - column:
+                  name: title
+                  value: "Программирование на Python"
+              - column:
+                  name: description
+                  value: "Тест по основам программирования на Python."
+              - column:
+                  name: creatorId
+                  value: 1
+              - column:
+                  name: categoryId
+                  value: 3

@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-quiz-results-table
+      author: Nursultan
+      changes:
+        - createTable:
+            tableName: quizResults
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: userId
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_quizResults_userId
+                    references: users(id)
+              - column:
+                  name: quizId
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_quizResults_quizId
+                    references: quizzes(id)
+              - column:
+                  name: score
+                  type: int
+                  constraints:
+                    nullable: false

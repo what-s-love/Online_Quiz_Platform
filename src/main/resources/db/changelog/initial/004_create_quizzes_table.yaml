@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-quizzes-table
+      author: Nursultan
+      changes:
+        - createTable:
+            tableName: quizzes
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(55)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creatorId
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_quizzes_creatorId
+                    references: users(id)
+              - column:
+                  name: categoryId
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_quizzes_categoryId
+                    references: categories(id)
