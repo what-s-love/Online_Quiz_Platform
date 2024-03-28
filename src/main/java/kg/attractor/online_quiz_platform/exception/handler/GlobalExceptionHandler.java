@@ -1,7 +1,7 @@
-package kg.attractor.demo.exception.handler;
+package kg.attractor.online_quiz_platform.exception.handler;
 
-import kg.attractor.demo.exception.UserNotFoundException;
-import kg.attractor.demo.service.ErrorService;
+import kg.attractor.online_quiz_platform.exception.UserAlreadyExists;
+import kg.attractor.online_quiz_platform.service.ErrorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +21,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorService.makeResponse(exception, 404), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?> noSuchUser(UserNotFoundException exception) {
+    @ExceptionHandler(UserAlreadyExists.class)
+    public ResponseEntity<?> noSuchUser(UserAlreadyExists exception) {
         return new ResponseEntity<>(errorService.makeResponse(exception, 404), HttpStatus.NOT_FOUND);
     }
 
