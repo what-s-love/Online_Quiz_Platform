@@ -50,4 +50,16 @@ public class UserDao {
                 )
         );
     }
+
+    public Optional<User> getUserById(int id) {
+        String sql = """
+                select * from users where id = ?;
+                """;
+
+        return Optional.ofNullable(
+                DataAccessUtils.singleResult(
+                        template.query(sql, new BeanPropertyRowMapper<>(User.class), id)
+                )
+        );
+    }
 }
