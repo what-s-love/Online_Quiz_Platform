@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserDao userDao;
-    
+
     public int createUserAndReturnId(UserDto userDto) {
         User user = dtoToModel(userDto);
         return userDao.createUserAndReturnId(user);
