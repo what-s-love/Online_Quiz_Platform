@@ -10,5 +10,6 @@ public class User {
     private String name;
     private String email;
     private String password;
-    private String accountType;
+    private Boolean enabled;
+    private String type;
 }
