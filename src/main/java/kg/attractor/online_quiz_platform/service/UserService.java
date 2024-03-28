@@ -3,14 +3,15 @@ package kg.attractor.online_quiz_platform.service;
 
 import kg.attractor.online_quiz_platform.dao.UserDao;
 import kg.attractor.online_quiz_platform.dto.UserDto;
+import kg.attractor.online_quiz_platform.exception.UserAlreadyExists;
 import kg.attractor.online_quiz_platform.model.User;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -22,6 +23,7 @@ public class UserService {
     }
 
 
+    @SneakyThrows
     public int createUserAndReturnId(UserDto userDto) {
         if (!userDao.getUserByEmail(userDto.getEmail()).isPresent()) {
             User user = new User();
@@ -33,7 +35,7 @@ public class UserService {
             return userDao.createUserAndReturnId(user);
         } else {
             log.error("Cannot create user");
-            throw new NoSuchElementException("Cannot find vacancy with this ID");
+            throw new UserAlreadyExists("User with this email already exists");
         }
     }
 

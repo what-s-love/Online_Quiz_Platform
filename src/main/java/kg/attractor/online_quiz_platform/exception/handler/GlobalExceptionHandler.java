@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExists.class)
-    public ResponseEntity<?> noSuchUser(UserAlreadyExists exception) {
+    public ResponseEntity<?> userAlreadyExists(UserAlreadyExists exception) {
         return new ResponseEntity<>(errorService.makeResponse(exception, 404), HttpStatus.NOT_FOUND);
     }
 
