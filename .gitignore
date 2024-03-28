@@ -18,6 +18,8 @@ target/
 *.iws
 *.iml
 *.ipr
+ToDo.txt
+/db/
 
 ### NetBeans ###
 /nbproject/private/
@@ -31,3 +33,6 @@ build/
 
 ### VS Code ###
 .vscode/
+/logs/
+logs/
+.logs
