@@ -10,6 +10,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,14 +23,18 @@ public class UserService {
 
 
     public int createUserAndReturnId(UserDto userDto) {
-        //ToDo Добавить проверку, что пользователя не существует (по email)
-        User user = new User();
-        user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(passwordEncoder().encode(userDto.getPassword()));
-        user.setEnabled(true);
-        user.setType("example");
-        return userDao.createUserAndReturnId(user);
+        if (!userDao.getUserByEmail(userDto.getEmail()).isPresent()) {
+            User user = new User();
+            user.setName(userDto.getName());
+            user.setEmail(userDto.getEmail());
+            user.setPassword(passwordEncoder().encode(userDto.getPassword()));
+            user.setEnabled(true);
+            user.setType("example");
+            return userDao.createUserAndReturnId(user);
+        } else {
+            log.error("Cannot create user");
+            throw new NoSuchElementException("Cannot find vacancy with this ID");
+        }
     }
 
 
