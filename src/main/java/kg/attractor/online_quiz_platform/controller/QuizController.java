@@ -39,4 +39,10 @@ public class QuizController {
     public ResponseEntity<QuizShowDto> getResumeById(@PathVariable int id, Authentication auth) {
         return ResponseEntity.ok(quizService.getQuizById(id, auth));
     }
+
+    @PostMapping("{id}/solve")
+    public HttpStatus sendSolution(@RequestBody List<Integer> solutions, @PathVariable int id, Authentication auth) {
+        quizService.sendSolution(solutions, id, auth);
+        return HttpStatus.OK;
+    }
 }

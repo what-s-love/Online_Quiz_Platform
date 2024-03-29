@@ -118,6 +118,24 @@ public class QuizService {
         return map;
     }
 
+    @SneakyThrows
+    public void sendSolution(List<Integer> solutions, int id, Authentication auth) {
+        if (auth != null) {
+            int solutionsCount = solutions.size();
+            int questionsCount = getQuestionsCountByQuizId(id);
+            if (solutionsCount == questionsCount) {
+                //ToDo Добавить проверку на наличие записи в таблице quizResults
+                
+            } else {
+                log.error("Not enough answers");
+                throw new NoSuchElementException("Lists have different sizes");
+            }
+        } else {
+            log.error("User not found");
+            throw new UserNotFoundException("Cannot find your authentication");
+        }
+    }
+
 
     public List<QuizShowDto> modelsToDtos(List<Quiz> quizzes) {
         List<QuizShowDto> dtos = new ArrayList<>();
