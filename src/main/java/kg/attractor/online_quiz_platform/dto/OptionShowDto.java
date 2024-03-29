@@ -9,4 +9,5 @@ public class OptionShowDto {
     private int id;
     private int questionId;
     private String optionText;
+    private Boolean isCorrect;
 }

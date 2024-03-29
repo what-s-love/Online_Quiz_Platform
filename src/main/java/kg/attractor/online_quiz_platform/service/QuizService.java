@@ -1,5 +1,6 @@
 package kg.attractor.online_quiz_platform.service;
 
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import kg.attractor.online_quiz_platform.dao.CategoryDao;
 import kg.attractor.online_quiz_platform.dao.OptionDao;
 import kg.attractor.online_quiz_platform.dao.QuestionDao;
@@ -14,6 +15,7 @@ import kg.attractor.online_quiz_platform.model.Category;
 import kg.attractor.online_quiz_platform.model.Opt;
 import kg.attractor.online_quiz_platform.model.Question;
 import kg.attractor.online_quiz_platform.model.Quiz;
+import kg.attractor.online_quiz_platform.model.Result;
 import kg.attractor.online_quiz_platform.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -108,6 +110,7 @@ public class QuizService {
                         .id(option.getId())
                         .questionId(option.getQuestionId())
                         .optionText(option.getOptionText())
+                        .isCorrect(option.getIsCorrect())
                         .build();
                 optionDtos.add(optionDto);
             }
@@ -119,13 +122,16 @@ public class QuizService {
     }
 
     @SneakyThrows
-    public void sendSolution(List<Integer> solutions, int id, Authentication auth) {
+    public void sendSolution(List<Integer> answers, int quizId, Authentication auth) {
         if (auth != null) {
-            int solutionsCount = solutions.size();
-            int questionsCount = getQuestionsCountByQuizId(id);
-            if (solutionsCount == questionsCount) {
+            int answersCount = answers.size();
+            int questionsCount = getQuestionsCountByQuizId(quizId);
+            if (answersCount == questionsCount) {
+                User user = getUserByAuth(auth);
+                int userId = user.getId();
                 //ToDo Добавить проверку на наличие записи в таблице quizResults
-                
+                //ToDo Добавить ResultDao и методы
+                Result result = getResult(answers, quizId, userId);
             } else {
                 log.error("Not enough answers");
                 throw new NoSuchElementException("Lists have different sizes");
@@ -134,6 +140,38 @@ public class QuizService {
             log.error("User not found");
             throw new UserNotFoundException("Cannot find your authentication");
         }
+    }
+
+    public Result getResult(List<Integer> answers, int quizId, int userId) {
+        List<Integer> rightAnswers = getRightAnswersByQuizId(quizId);
+        int rightAnswersCount = 0;
+        for (int i = 0; i < answers.size(); i++) {
+            if (answers.get(i) == rightAnswers.get(i)) {
+                rightAnswersCount++;
+            }
+        }
+        double score = rightAnswersCount/rightAnswers.size() * 100;
+        Result result = new Result();
+        result.setUserId(userId);
+        result.setQuizId(quizId);
+        result.setScore(score);
+        return result;
+    }
+
+    @SneakyThrows
+    public List<Integer> getRightAnswersByQuizId(int quizId) {
+        Map<QuestionShowDto, List<OptionShowDto>> dtos = getQuestionsByQuizId(quizId);
+        List<Integer> rightAnswers = new ArrayList<>();
+        for (Map.Entry<QuestionShowDto, List<OptionShowDto>> entry : dtos.entrySet()) {
+            List<OptionShowDto> options = entry.getValue();
+            for (int i = 0; i < options.size(); i++) {
+                if (options.get(i).getIsCorrect()) {
+                    rightAnswers.add(i + 1);
+                    break;
+                }
+            }
+        }
+        return rightAnswers;
     }
 
 
