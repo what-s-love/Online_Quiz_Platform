@@ -1,5 +1,6 @@
 package kg.attractor.online_quiz_platform.dao;
 
+import kg.attractor.online_quiz_platform.model.Opt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,10 +15,10 @@ import java.util.List;
 public class OptionDao {
     private final JdbcTemplate template;
 
-    public List<Option> getOptionsByQuestionId(int questionId) {
+    public List<Opt> getOptionsByQuestionId(int questionId) {
         String sql = """
             select * from questions where quizId = ?;
             """;
-        return template.query(sql, new BeanPropertyRowMapper<>(Option.class), questionId);
+        return template.query(sql, new BeanPropertyRowMapper<>(Opt.class), questionId);
     }
 }

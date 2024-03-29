@@ -1,6 +1,7 @@
 package kg.attractor.online_quiz_platform.service;
 
 import kg.attractor.online_quiz_platform.dao.CategoryDao;
+import kg.attractor.online_quiz_platform.dao.OptionDao;
 import kg.attractor.online_quiz_platform.dao.QuestionDao;
 import kg.attractor.online_quiz_platform.dao.QuizDao;
 import kg.attractor.online_quiz_platform.dao.UserDao;
@@ -10,6 +11,7 @@ import kg.attractor.online_quiz_platform.dto.QuizDto;
 import kg.attractor.online_quiz_platform.dto.QuizShowDto;
 import kg.attractor.online_quiz_platform.exception.UserNotFoundException;
 import kg.attractor.online_quiz_platform.model.Category;
+import kg.attractor.online_quiz_platform.model.Opt;
 import kg.attractor.online_quiz_platform.model.Question;
 import kg.attractor.online_quiz_platform.model.Quiz;
 import kg.attractor.online_quiz_platform.model.User;
@@ -33,6 +35,7 @@ public class QuizService {
     private final UserDao userDao;
     private final QuestionDao questionDao;
     private final CategoryDao categoryDao;
+    private final OptionDao optionDao;
 
     public int createQuizAndReturnId(QuizDto quizDto, Authentication auth) {
         User user = getUserByAuth(auth);
@@ -70,11 +73,49 @@ public class QuizService {
         List<Question> questions = questionDao.getQuestionsByQuizId(quizId);
         return questions.size();
     }
+    @SneakyThrows
+    public List<QuizShowDto> getQuizzes() {
+        return modelsToDtos(quizDao.getQuizzes());
+    }
+
+    @SneakyThrows
+    public QuizShowDto getQuizById(int id, Authentication auth) {
+        if (auth != null) {
+            Quiz quiz = quizDao.getQuizById(id).orElseThrow(() -> new NoSuchElementException("Cannot find quiz"));
+            return modelToDto(quiz);
+        } else {
+            log.error("User not found");
+            throw new UserNotFoundException("Cannot find your authentication");
+        }
+    }
+
 
     public Map<QuestionShowDto, List<OptionShowDto>> getQuestionsByQuizId(int quizId) {
+        List<Question> questions = questionDao.getQuestionsByQuizId(quizId);
         Map<QuestionShowDto, List<OptionShowDto>> map = new HashMap<>();
-        //ToDo добавить методы и классы для наполнения map
 
+        for (Question question : questions) {
+            QuestionShowDto questionDto = QuestionShowDto.builder()
+                    .id(question.getId())
+                    .quizId(question.getQuizId())
+                    .questionText(question.getQuestionText())
+                    .build();
+
+            List<Opt> options = optionDao.getOptionsByQuestionId(question.getId());
+            List<OptionShowDto> optionDtos = new ArrayList<>();
+            for (Opt option : options) {
+                OptionShowDto optionDto = OptionShowDto.builder()
+                        .id(option.getId())
+                        .questionId(option.getQuestionId())
+                        .optionText(option.getOptionText())
+                        .build();
+                optionDtos.add(optionDto);
+            }
+
+            map.put(questionDto, optionDtos);
+        }
+
+        return map;
     }
 
 
@@ -87,9 +128,22 @@ public class QuizService {
                 .creatorName(getUsernameById(e.getCreatorId()))
                 .categoryName(getCategoryById(e.getCategoryId()))
                 .questionsCount(getQuestionsCountByQuizId(e.getId()))
-                //ToDo прописать получение questions
-                .questions()
+                .questions(getQuestionsByQuizId(e.getId()))
                 .build()));
         return dtos;
+    }
+
+    public QuizShowDto modelToDto(Quiz quiz) {
+        QuizShowDto dto;
+        dto = QuizShowDto.builder()
+                .id(quiz.getId())
+                .title(quiz.getTitle())
+                .description(quiz.getDescription())
+                .creatorName(getUsernameById(quiz.getCreatorId()))
+                .categoryName(getCategoryById(quiz.getCategoryId()))
+                .questionsCount(getQuestionsCountByQuizId(quiz.getId()))
+                .questions(getQuestionsByQuizId(quiz.getId()))
+                .build();
+        return dto;
     }
 }
