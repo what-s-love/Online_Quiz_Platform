@@ -1,6 +1,5 @@
 package kg.attractor.online_quiz_platform.service;
 
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import kg.attractor.online_quiz_platform.dao.CategoryDao;
 import kg.attractor.online_quiz_platform.dao.OptionDao;
 import kg.attractor.online_quiz_platform.dao.QuestionDao;
@@ -132,7 +131,7 @@ public class QuizService {
                 User user = getUserByAuth(auth);
                 int userId = user.getId();
                 //ToDo Добавить проверку на наличие записи в таблице quizResults по quizId и userId
-                Result result = getResult(answers, quizId, userId);
+                Result result = calculateResult(answers, quizId, userId);
                 resultDao.create(result);
             } else {
                 log.error("Not enough answers");
@@ -144,7 +143,7 @@ public class QuizService {
         }
     }
 
-    public Result getResult(List<Integer> answers, int quizId, int userId) {
+    public Result calculateResult(List<Integer> answers, int quizId, int userId) {
         List<Integer> rightAnswers = getRightAnswersByQuizId(quizId);
         int rightAnswersCount = 0;
         for (int i = 0; i < answers.size(); i++) {
