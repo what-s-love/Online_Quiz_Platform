@@ -5,6 +5,7 @@ import kg.attractor.online_quiz_platform.dao.CategoryDao;
 import kg.attractor.online_quiz_platform.dao.OptionDao;
 import kg.attractor.online_quiz_platform.dao.QuestionDao;
 import kg.attractor.online_quiz_platform.dao.QuizDao;
+import kg.attractor.online_quiz_platform.dao.ResultDao;
 import kg.attractor.online_quiz_platform.dao.UserDao;
 import kg.attractor.online_quiz_platform.dto.OptionShowDto;
 import kg.attractor.online_quiz_platform.dto.QuestionShowDto;
@@ -38,6 +39,7 @@ public class QuizService {
     private final QuestionDao questionDao;
     private final CategoryDao categoryDao;
     private final OptionDao optionDao;
+    private final ResultDao resultDao;
 
     public int createQuizAndReturnId(QuizDto quizDto, Authentication auth) {
         User user = getUserByAuth(auth);
@@ -129,9 +131,9 @@ public class QuizService {
             if (answersCount == questionsCount) {
                 User user = getUserByAuth(auth);
                 int userId = user.getId();
-                //ToDo Добавить проверку на наличие записи в таблице quizResults
-                //ToDo Добавить ResultDao и методы
+                //ToDo Добавить проверку на наличие записи в таблице quizResults по quizId и userId
                 Result result = getResult(answers, quizId, userId);
+                resultDao.create(result);
             } else {
                 log.error("Not enough answers");
                 throw new NoSuchElementException("Lists have different sizes");
