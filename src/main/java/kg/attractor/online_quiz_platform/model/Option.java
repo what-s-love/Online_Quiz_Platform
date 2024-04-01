@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Opt {
-    private int id;
-    private int questionId;
+public class Option {
+    private Integer id;
+    private Integer questionId;
     private String optionText;
     private Boolean isCorrect;
 }

@@ -25,4 +25,16 @@ public class CategoryDao {
                 )
         );
     }
+
+    public Optional<Category> getCategoryByName(String name) {
+        String sql = """
+                select * from categories
+                where name like ?
+                """;
+        return Optional.ofNullable(
+                DataAccessUtils.singleResult(
+                        template.query(sql, new BeanPropertyRowMapper<>(Category.class), name)
+                )
+        );
+    }
 }

@@ -43,7 +43,7 @@ public class QuizDao {
     }
 
 
-    public int createQuizAndReturnId(Quiz quiz) {
+    public Integer createQuizAndReturnId(Quiz quiz) {
         String sql = """
                 INSERT INTO quizzes (title, description, creatorId, categoryId)
                 values (:title, :description, :creatorId, :categoryId);

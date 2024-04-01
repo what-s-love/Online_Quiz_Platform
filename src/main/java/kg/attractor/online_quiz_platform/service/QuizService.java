@@ -9,12 +9,7 @@ import kg.attractor.online_quiz_platform.dao.UserDao;
 import kg.attractor.online_quiz_platform.dto.*;
 import kg.attractor.online_quiz_platform.exception.CategoryNotFoundException;
 import kg.attractor.online_quiz_platform.exception.UserNotFoundException;
-import kg.attractor.online_quiz_platform.model.Category;
-import kg.attractor.online_quiz_platform.model.Opt;
-import kg.attractor.online_quiz_platform.model.Question;
-import kg.attractor.online_quiz_platform.model.Quiz;
-import kg.attractor.online_quiz_platform.model.Result;
-import kg.attractor.online_quiz_platform.model.User;
+import kg.attractor.online_quiz_platform.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -56,27 +51,55 @@ public class QuizService {
         return quizShowListDtoList;
     }
 
-
-
-    public int createQuizAndReturnId(QuizDto quizDto, Authentication auth) {
-        User user = getUserByAuth(auth);
+    @SneakyThrows
+    public void createQuiz(QuizCreateDto quizCreateDto, Authentication authentication) {
+        User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
         Quiz quiz = new Quiz();
-        quiz.setTitle(quizDto.getTitle());
-        quiz.setDescription(quizDto.getDescription());
-        quiz.setCreatorId(user.getId());
-        quiz.setCategoryId(quizDto.getCategoryId());
-        return quizDao.createQuizAndReturnId(quiz);
+
+        quiz.setTitle(quizCreateDto.getTitle());
+        quiz.setDescription(quizCreateDto.getDescription());
+        quiz.setCreatorId(mayBeUser.getId());
+        Category category = categoryDao.getCategoryByName(quizCreateDto.getCategory()).orElseThrow(() -> new CategoryNotFoundException("Can't find category with this name"));
+        quiz.setCategoryId(category.getId());
+        Integer quizId = quizDao.createQuizAndReturnId(quiz);
+
+        for (int i = 0; i < quizCreateDto.getQuestionCreateDtoList().size() ; i++) {
+            Question question = new Question();
+
+            question.setQuizId(quizId);
+            question.setQuestionText(quizCreateDto.getQuestionCreateDtoList().get(i).getQuestionText());
+            Integer questionId =  questionDao.createQuestion(question);
+
+            for (int j = 0; j < quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().size(); j++) {
+                Option option = new Option();
+                option.setQuestionId(questionId);
+                option.setOptionText(quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().get(j).getOptionText());
+                option.setIsCorrect(quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().get(j).getIsCorrect());
+                optionDao.createOption(option);
+            }
+        }
     }
+
+
+
+//    public int createQuizAndReturnId(QuizDto quizDto, Authentication auth) {
+//        User user = getUserByAuth(auth);
+//        Quiz quiz = new Quiz();
+//        quiz.setTitle(quizDto.getTitle());
+//        quiz.setDescription(quizDto.getDescription());
+//        quiz.setCreatorId(user.getId());
+//        quiz.setCategoryId(quizDto.getCategoryId());
+//        return quizDao.createQuizAndReturnId(quiz);
+//    }
 
     ///////////////////////////////utilMethods//////////////////////////////////
 
     @SneakyThrows
-    public User getUserByAuth(Authentication auth) {
-        String authStr = auth.getPrincipal().toString();
-        int x = authStr.indexOf("=");
-        int y = authStr.indexOf(",");
-        String email = authStr.substring(x + 1, y);
-        return userDao.getUserByEmail(email).orElseThrow(() -> new UserNotFoundException("Can not find user"));
+    public User getUserFromAuth(String auth) {
+        int x = auth.indexOf("=");
+        int y = auth.indexOf(",");
+        String email = auth.substring(x + 1, y);
+        return userDao.getUserByEmail(email).orElseThrow(() -> new UserNotFoundException("can't find user with this email"));
     }
 
     @SneakyThrows
@@ -95,127 +118,127 @@ public class QuizService {
         return questions.size();
     }
 
-
-    @SneakyThrows
-    public QuizShowDto getQuizById(int id, Authentication auth) {
-        if (auth != null) {
-            Quiz quiz = quizDao.getQuizById(id).orElseThrow(() -> new NoSuchElementException("Cannot find quiz"));
-            return modelToDto(quiz);
-        } else {
-            log.error("User not found");
-            throw new UserNotFoundException("Cannot find your authentication");
-        }
-    }
-
-
-    public Map<QuestionShowDto, List<OptionShowDto>> getQuestionsByQuizId(int quizId) {
-        List<Question> questions = questionDao.getQuestionsByQuizId(quizId);
-        Map<QuestionShowDto, List<OptionShowDto>> map = new HashMap<>();
-
-        for (Question question : questions) {
-            QuestionShowDto questionDto = QuestionShowDto.builder()
-                    .id(question.getId())
-                    .quizId(question.getQuizId())
-                    .questionText(question.getQuestionText())
-                    .build();
-
-            List<Opt> options = optionDao.getOptionsByQuestionId(question.getId());
-            List<OptionShowDto> optionDtos = new ArrayList<>();
-            for (Opt option : options) {
-                OptionShowDto optionDto = OptionShowDto.builder()
-                        .id(option.getId())
-                        .questionId(option.getQuestionId())
-                        .optionText(option.getOptionText())
-                        .isCorrect(option.getIsCorrect())
-                        .build();
-                optionDtos.add(optionDto);
-            }
-
-            map.put(questionDto, optionDtos);
-        }
-
-        return map;
-    }
-
-    @SneakyThrows
-    public void sendSolution(List<Integer> answers, int quizId, Authentication auth) {
-        if (auth != null) {
-            int answersCount = answers.size();
-            int questionsCount = getQuestionsCountByQuizId(quizId);
-            if (answersCount == questionsCount) {
-                User user = getUserByAuth(auth);
-                int userId = user.getId();
-                //ToDo Добавить проверку на наличие записи в таблице quizResults по quizId и userId
-                Result result = calculateResult(answers, quizId, userId);
-                resultDao.create(result);
-            } else {
-                log.error("Not enough answers");
-                throw new NoSuchElementException("Lists have different sizes");
-            }
-        } else {
-            log.error("User not found");
-            throw new UserNotFoundException("Cannot find your authentication");
-        }
-    }
-
-    public Result calculateResult(List<Integer> answers, int quizId, int userId) {
-        List<Integer> rightAnswers = getRightAnswersByQuizId(quizId);
-        int rightAnswersCount = 0;
-        for (int i = 0; i < answers.size(); i++) {
-            if (answers.get(i) == rightAnswers.get(i)) {
-                rightAnswersCount++;
-            }
-        }
-        double score = rightAnswersCount/rightAnswers.size() * 100;
-        Result result = new Result();
-        result.setUserId(userId);
-        result.setQuizId(quizId);
-        result.setScore(score);
-        return result;
-    }
-
-    @SneakyThrows
-    public List<Integer> getRightAnswersByQuizId(int quizId) {
-        Map<QuestionShowDto, List<OptionShowDto>> dtos = getQuestionsByQuizId(quizId);
-        List<Integer> rightAnswers = new ArrayList<>();
-        for (Map.Entry<QuestionShowDto, List<OptionShowDto>> entry : dtos.entrySet()) {
-            List<OptionShowDto> options = entry.getValue();
-            for (int i = 0; i < options.size(); i++) {
-                if (options.get(i).getIsCorrect()) {
-                    rightAnswers.add(i + 1);
-                    break;
-                }
-            }
-        }
-        return rightAnswers;
-    }
+//
+//    @SneakyThrows
+//    public QuizShowDto getQuizById(int id, Authentication auth) {
+//        if (auth != null) {
+//            Quiz quiz = quizDao.getQuizById(id).orElseThrow(() -> new NoSuchElementException("Cannot find quiz"));
+//            return modelToDto(quiz);
+//        } else {
+//            log.error("User not found");
+//            throw new UserNotFoundException("Cannot find your authentication");
+//        }
+//    }
 
 
-    public List<QuizShowDto> modelsToDtos(List<Quiz> quizzes) {
-        List<QuizShowDto> dtos = new ArrayList<>();
-        quizzes.forEach(e -> dtos.add(QuizShowDto.builder()
-                .id(e.getId())
-                .title(e.getTitle())
-                .description(e.getDescription())
-                .creatorName(getUsernameById(e.getCreatorId()))
-                .categoryName(getCategoryById(e.getCategoryId()))
-                .questionsCount(getQuestionsCountByQuizId(e.getId()))
-                .questions(getQuestionsByQuizId(e.getId()))
-                .build()));
-        return dtos;
-    }
+//    public Map<QuestionShowDto, List<OptionShowDto>> getQuestionsByQuizId(int quizId) {
+//        List<Question> questions = questionDao.getQuestionsByQuizId(quizId);
+//        Map<QuestionShowDto, List<OptionShowDto>> map = new HashMap<>();
+//
+//        for (Question question : questions) {
+//            QuestionShowDto questionDto = QuestionShowDto.builder()
+//                    .id(question.getId())
+//                    .quizId(question.getQuizId())
+//                    .questionText(question.getQuestionText())
+//                    .build();
+//
+//            List<Opt> options = optionDao.getOptionsByQuestionId(question.getId());
+//            List<OptionShowDto> optionDtos = new ArrayList<>();
+//            for (Opt option : options) {
+//                OptionShowDto optionDto = OptionShowDto.builder()
+//                        .id(option.getId())
+//                        .questionId(option.getQuestionId())
+//                        .optionText(option.getOptionText())
+//                        .isCorrect(option.getIsCorrect())
+//                        .build();
+//                optionDtos.add(optionDto);
+//            }
+//
+//            map.put(questionDto, optionDtos);
+//        }
+//
+//        return map;
+//    }
 
-    public QuizShowDto modelToDto(Quiz quiz) {
-        QuizShowDto dto;
-        dto = QuizShowDto.builder()
-                .id(quiz.getId())
-                .title(quiz.getTitle())
-                .description(quiz.getDescription())
-                .creatorName(getUsernameById(quiz.getCreatorId()))
-                .categoryName(getCategoryById(quiz.getCategoryId()))
-                .questionsCount(getQuestionsCountByQuizId(quiz.getId()))
-                .questions(getQuestionsByQuizId(quiz.getId()))
-                .build();
-        return dto;
-    }
+//    @SneakyThrows
+//    public void sendSolution(List<Integer> answers, int quizId, Authentication auth) {
+//        if (auth != null) {
+//            int answersCount = answers.size();
+//            int questionsCount = getQuestionsCountByQuizId(quizId);
+//            if (answersCount == questionsCount) {
+//                User user = getUserByAuth(auth);
+//                int userId = user.getId();
+//                //ToDo Добавить проверку на наличие записи в таблице quizResults по quizId и userId
+//                Result result = calculateResult(answers, quizId, userId);
+//                resultDao.create(result);
+//            } else {
+//                log.error("Not enough answers");
+//                throw new NoSuchElementException("Lists have different sizes");
+//            }
+//        } else {
+//            log.error("User not found");
+//            throw new UserNotFoundException("Cannot find your authentication");
+//        }
+//    }
+//
+//    public Result calculateResult(List<Integer> answers, int quizId, int userId) {
+//        List<Integer> rightAnswers = getRightAnswersByQuizId(quizId);
+//        int rightAnswersCount = 0;
+//        for (int i = 0; i < answers.size(); i++) {
+//            if (answers.get(i) == rightAnswers.get(i)) {
+//                rightAnswersCount++;
+//            }
+//        }
+//        double score = rightAnswersCount/rightAnswers.size() * 100;
+//        Result result = new Result();
+//        result.setUserId(userId);
+//        result.setQuizId(quizId);
+//        result.setScore(score);
+//        return result;
+//    }
+//
+//    @SneakyThrows
+//    public List<Integer> getRightAnswersByQuizId(int quizId) {
+//        Map<QuestionShowDto, List<OptionShowDto>> dtos = getQuestionsByQuizId(quizId);
+//        List<Integer> rightAnswers = new ArrayList<>();
+//        for (Map.Entry<QuestionShowDto, List<OptionShowDto>> entry : dtos.entrySet()) {
+//            List<OptionShowDto> options = entry.getValue();
+//            for (int i = 0; i < options.size(); i++) {
+//                if (options.get(i).getIsCorrect()) {
+//                    rightAnswers.add(i + 1);
+//                    break;
+//                }
+//            }
+//        }
+//        return rightAnswers;
+//    }
+//
+//
+//    public List<QuizShowDto> modelsToDtos(List<Quiz> quizzes) {
+//        List<QuizShowDto> dtos = new ArrayList<>();
+//        quizzes.forEach(e -> dtos.add(QuizShowDto.builder()
+//                .id(e.getId())
+//                .title(e.getTitle())
+//                .description(e.getDescription())
+//                .creatorName(getUsernameById(e.getCreatorId()))
+//                .categoryName(getCategoryById(e.getCategoryId()))
+//                .questionsCount(getQuestionsCountByQuizId(e.getId()))
+//                .questions(getQuestionsByQuizId(e.getId()))
+//                .build()));
+//        return dtos;
+//    }
+//
+//    public QuizShowDto modelToDto(Quiz quiz) {
+//        QuizShowDto dto;
+//        dto = QuizShowDto.builder()
+//                .id(quiz.getId())
+//                .title(quiz.getTitle())
+//                .description(quiz.getDescription())
+//                .creatorName(getUsernameById(quiz.getCreatorId()))
+//                .categoryName(getCategoryById(quiz.getCategoryId()))
+//                .questionsCount(getQuestionsCountByQuizId(quiz.getId()))
+//                .questions(getQuestionsByQuizId(quiz.getId()))
+//                .build();
+//        return dto;
+//    }
 }
