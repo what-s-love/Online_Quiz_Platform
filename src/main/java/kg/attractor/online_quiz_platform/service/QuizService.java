@@ -56,7 +56,17 @@ public class QuizService {
         return quizShowListDtoList;
     }
 
-
+    public List<ResultDto> getResultByUserId(Long userId){
+        List<Result> results = resultDao.getResultsByUserId(userId);
+        List<ResultDto> dtos = new ArrayList<>();
+        results.forEach(e -> dtos.add(ResultDto.builder()
+                        .id(e.getId())
+                        .userId(e.getUserId())
+                        .quizId(e.getQuizId())
+                        .score(e.getScore())
+                        .build()));
+        return dtos;
+    }
 
     public int createQuizAndReturnId(QuizDto quizDto, Authentication auth) {
         User user = getUserByAuth(auth);
