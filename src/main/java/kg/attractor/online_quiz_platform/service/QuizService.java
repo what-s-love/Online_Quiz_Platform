@@ -56,16 +56,25 @@ public class QuizService {
         return quizShowListDtoList;
     }
 
-    public List<ResultDto> getResultByUserId(Long userId){
+    public String getResultByUserId(Long userId){
         List<Result> results = resultDao.getResultsByUserId(userId);
         List<ResultDto> dtos = new ArrayList<>();
-        results.forEach(e -> dtos.add(ResultDto.builder()
-                        .id(e.getId())
-                        .userId(e.getUserId())
-                        .quizId(e.getQuizId())
-                        .score(e.getScore())
-                        .build()));
-        return dtos;
+        List<Integer> scores = new ArrayList<>(); // Создаем список для хранения баллов
+
+        results.forEach(e -> {
+            dtos.add(ResultDto.builder()
+                    .quizId(e.getQuizId())
+                    .build());
+            scores.add((int) e.getScore()); // Добавляем балл в список
+        });
+
+        double average = scores.stream()
+                .mapToInt(Integer::intValue)
+                .average()
+                .orElse(0.0);
+
+        return "Общее количество пройденных тестов: " + dtos.size() + ". Средний балл: " + average;
+
     }
 
     public int createQuizAndReturnId(QuizDto quizDto, Authentication auth) {

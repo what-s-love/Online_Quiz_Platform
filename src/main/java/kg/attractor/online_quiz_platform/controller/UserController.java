@@ -17,7 +17,7 @@ public class UserController {
     private final QuizService quizService;
 
     @GetMapping("{userId}/statistics")
-    public List<ResultDto> getResultsByUserId(@PathVariable Long userId){
+    public String getResultsByUserId(@PathVariable Long userId){
         return quizService.getResultByUserId(userId);
     }
 }
