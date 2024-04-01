@@ -19,14 +19,15 @@ public class UserDao {
 
     public void createUser(User user) {
         String sql = """
-                insert into users(name, email, password, enabled)
-                values (:name, :email, :password, :type)
+                insert into users(name, email, password, enabled, role_id)
+                values (:name, :email, :password, :enabled, :role_id)
                 """;
         parametrizedTemplate.update(sql, new MapSqlParameterSource()
                 .addValue("name", user.getName())
                 .addValue("email", user.getEmail())
                 .addValue("password", user.getPassword())
                 .addValue("enabled", true)
+                .addValue("role_id", 1)
         );
     }
 

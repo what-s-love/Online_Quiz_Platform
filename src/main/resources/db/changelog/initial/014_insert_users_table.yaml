@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: insertDataAuthority
+      author: Nursultan
+      changes:
+        - sql:
+            comment: Insert data into authority
+            sql: |
+              insert into authorities (authority)
+              values('FULL');
+  - changeSet:
+      id: insertDataRoles
+      author: admin
+      changes:
+        - sql:
+            comment: Insert data into roles
+            sql: |
+              insert into roles(role, authority_id)
+              values ('USER', (select id from authorities where authority = 'FULL'));
+  - changeSet:
+      id: modify user table
+      author: Nursultan
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: role_id
+                  type: long
+                  constraints:
+                    foreignKeyName: fk_role_id
+                    nullable: true
+                    references: roles(id)
+  - changeSet:
+      id: insertDataUsers
+      author: Nursultan
+      changes:
+        - sql:
+            sql: |
+              insert into users(name, email, password, enabled, role_id)
+              VALUES
+              ('Alex','asdf@asdf.asdf', '$2a$12$gia1VaPRIlJ5rHQ6dI6ZkOUiFCDNRzWXqxybDny9j7LUveUfw3r2u', true, (select id from roles where role = 'USER')),
+              ('Jane', 'qwe@qwe.qwe', '$2a$12$R2WIT.PXQfBf.iHJCnl1RusjOWeIONtWXC5us4IDZB5o/SYLKpMqe', true, (select id from roles where role = 'USER'));

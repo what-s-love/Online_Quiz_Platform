@@ -40,16 +40,16 @@ public class SecurityConfig {
                 "from users\n" +
                 "where email = ?;";
 
-        // запрос для ролей пользователя
-//        String fetchRolesQuery = "select email, role\n" +
-//                "from users u,\n" +
-//                "     roles r\n" +
-//                "where u.email = ?\n" +
-//                "  and u.role_id = r.id;";
+//         запрос для ролей пользователя
+        String fetchRolesQuery = "select email, role\n" +
+                "from users u,\n" +
+                "     roles r\n" +
+                "where u.email = ?\n" +
+                "  and u.role_id = r.id;";
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
                 .usersByUsernameQuery(fetchUsersQuery)
-//                .authoritiesByUsernameQuery(fetchRolesQuery)
+                .authoritiesByUsernameQuery(fetchRolesQuery)
                 .passwordEncoder(new BCryptPasswordEncoder());
     }
 
@@ -63,7 +63,8 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers(HttpMethod.PUT, "/accounts").fullyAuthenticated()
+                        .requestMatchers(HttpMethod.GET, "/quizzes").fullyAuthenticated()
+
 //                        .requestMatchers(HttpMethod.POST, "/accounts/avatar").fullyAuthenticated()
 //
 //                        .requestMatchers(HttpMethod.GET, "/resumes/applicant").hasAuthority("APPLICANT")
