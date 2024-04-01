@@ -2,6 +2,7 @@ package kg.attractor.online_quiz_platform.controller;
 
 import jakarta.validation.Valid;
 import kg.attractor.online_quiz_platform.dto.QuizDto;
+import kg.attractor.online_quiz_platform.dto.QuizReviewsDto;
 import kg.attractor.online_quiz_platform.dto.QuizShowDto;
 import kg.attractor.online_quiz_platform.dto.QuizShowListDto;
 import kg.attractor.online_quiz_platform.dto.UserDto;
@@ -44,6 +45,12 @@ public class QuizController {
     @PostMapping("{id}/solve")
     public HttpStatus sendSolution(@RequestBody List<Integer> solutions, @PathVariable int id, Authentication auth) {
         quizService.sendSolution(solutions, id, auth);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("{quizId}/rate")
+    public HttpStatus addVote(@RequestBody QuizReviewsDto quizReviewsDto, @PathVariable Long quizId){
+        quizService.addVoteToQuiz(quizReviewsDto, quizId);
         return HttpStatus.OK;
     }
 }

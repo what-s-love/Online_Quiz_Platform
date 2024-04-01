@@ -1,6 +1,7 @@
 package kg.attractor.online_quiz_platform.dao;
 
 import kg.attractor.online_quiz_platform.model.Quiz;
+import kg.attractor.online_quiz_platform.model.QuizReviews;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -58,4 +59,16 @@ public class QuizDao {
         parametrizedTemplate.update(sql, params, keyHolder);
         return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
+
+    public void addVote(QuizReviews quizReviews){
+        String sql = """
+           INSERT INTO QuizReviews (QUIZID, ESTIMATION, NUMBEROFVOTES)
+           VALUES (:quizId, :estimation, :numberOfVotes)
+            """;
+        parametrizedTemplate.update(sql, new MapSqlParameterSource()
+                .addValue("quizId", quizReviews.getQuizId())
+                .addValue("estimation", quizReviews.getEstimation())
+                .addValue("numberOfVotes", quizReviews.getNumberOfVotes()));
+    }
+
 }

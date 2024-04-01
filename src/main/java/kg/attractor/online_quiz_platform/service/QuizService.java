@@ -13,6 +13,7 @@ import kg.attractor.online_quiz_platform.model.Category;
 import kg.attractor.online_quiz_platform.model.Opt;
 import kg.attractor.online_quiz_platform.model.Question;
 import kg.attractor.online_quiz_platform.model.Quiz;
+import kg.attractor.online_quiz_platform.model.QuizReviews;
 import kg.attractor.online_quiz_platform.model.Result;
 import kg.attractor.online_quiz_platform.model.User;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +90,15 @@ public class QuizService {
         quiz.setCategoryId(quizDto.getCategoryId());
         return quizDao.createQuizAndReturnId(quiz);
     }
+
+    public void addVoteToQuiz(QuizReviewsDto quizReviewsDto, Long quizId){
+        QuizReviews quizReviews = new QuizReviews();
+        quizReviews.setEstimation(quizReviewsDto.getEstimation());
+        quizReviews.setNumberOfVotes(quizReviewsDto.getNumberOfVotes() + 1);
+        quizReviews.setQuizId(quizId);
+        quizDao.addVote(quizReviews);
+    }
+
 
     ///////////////////////////////utilMethods//////////////////////////////////
 
