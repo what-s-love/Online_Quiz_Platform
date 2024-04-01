@@ -73,7 +73,10 @@ public class QuizService {
                 .average()
                 .orElse(0.0);
 
-        return "Общее количество пройденных тестов: " + dtos.size() + ". Средний балл: " + average;
+        String msg = String.format("Общее количество пройденных тестов: %s%n" +
+                "Среднее количество баллов:%s%n", dtos.size(),average);
+
+        return msg;
 
     }
 
