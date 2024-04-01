@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class QuestionShowDto {
-    private String questionText;
-    private List<OptionShowDto> optionShowDtoList;
+public class QuizSingleShowDto {
+    private String title;
+    private List<QuestionShowDto> questionShowDtoList;
 }

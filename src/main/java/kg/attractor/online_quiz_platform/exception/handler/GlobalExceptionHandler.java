@@ -1,6 +1,7 @@
 package kg.attractor.online_quiz_platform.exception.handler;
 
 import kg.attractor.online_quiz_platform.exception.CategoryNotFoundException;
+import kg.attractor.online_quiz_platform.exception.QuizNotFoundException;
 import kg.attractor.online_quiz_platform.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -58,6 +59,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CategoryNotFoundException.class)
     public ResponseEntity<Map<String, List<String>>> handleCategoryNotFoundException(CategoryNotFoundException ex) {
+        return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(QuizNotFoundException.class)
+    public ResponseEntity<Map<String, List<String>>> handleCategoryNotFoundException(QuizNotFoundException ex) {
         return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 }

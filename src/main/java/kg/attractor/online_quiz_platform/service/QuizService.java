@@ -8,6 +8,7 @@ import kg.attractor.online_quiz_platform.dao.ResultDao;
 import kg.attractor.online_quiz_platform.dao.UserDao;
 import kg.attractor.online_quiz_platform.dto.*;
 import kg.attractor.online_quiz_platform.exception.CategoryNotFoundException;
+import kg.attractor.online_quiz_platform.exception.QuizNotFoundException;
 import kg.attractor.online_quiz_platform.exception.UserNotFoundException;
 import kg.attractor.online_quiz_platform.model.*;
 import lombok.RequiredArgsConstructor;
@@ -80,19 +81,35 @@ public class QuizService {
         }
     }
 
+    @SneakyThrows
+    public QuizSingleShowDto getQuizById(Integer quizId) {
+        Quiz quiz = quizDao.getQuizById(quizId).orElseThrow(() -> new QuizNotFoundException("Can't find quiz with this id: " + quizId));
 
+        List<Question> questions = questionDao.getQuestionsByQuizId(quizId);
+        List<QuestionShowDto> questionShowDtoList = new ArrayList<>();
+        for (Question question : questions) {
+            List<Option> options = optionDao.getOptionsByQuestionId(question.getId());
+            List<OptionShowDto> optionShowDtoList = new ArrayList<>();
+            for (Option option : options) {
+                OptionShowDto optionShowDto = OptionShowDto.builder()
+                        .optionText(option.getOptionText())
+                        .build();
+                optionShowDtoList.add(optionShowDto);
+            }
 
-//    public int createQuizAndReturnId(QuizDto quizDto, Authentication auth) {
-//        User user = getUserByAuth(auth);
-//        Quiz quiz = new Quiz();
-//        quiz.setTitle(quizDto.getTitle());
-//        quiz.setDescription(quizDto.getDescription());
-//        quiz.setCreatorId(user.getId());
-//        quiz.setCategoryId(quizDto.getCategoryId());
-//        return quizDao.createQuizAndReturnId(quiz);
-//    }
+            QuestionShowDto questionShowDto = QuestionShowDto.builder()
+                    .questionText(question.getQuestionText())
+                    .optionShowDtoList(optionShowDtoList)
+                    .build();
+            questionShowDtoList.add(questionShowDto);
+        }
 
-    ///////////////////////////////utilMethods//////////////////////////////////
+        return QuizSingleShowDto.builder()
+                .title(quiz.getTitle())
+                .questionShowDtoList(questionShowDtoList)
+                .build();
+    }
+
 
     @SneakyThrows
     public User getUserFromAuth(String auth) {

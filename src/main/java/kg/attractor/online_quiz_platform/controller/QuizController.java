@@ -2,9 +2,8 @@ package kg.attractor.online_quiz_platform.controller;
 
 import jakarta.validation.Valid;
 import kg.attractor.online_quiz_platform.dto.QuizCreateDto;
-import kg.attractor.online_quiz_platform.dto.QuizDto;
-import kg.attractor.online_quiz_platform.dto.QuizShowDto;
 import kg.attractor.online_quiz_platform.dto.QuizShowListDto;
+import kg.attractor.online_quiz_platform.dto.QuizSingleShowDto;
 import kg.attractor.online_quiz_platform.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,10 +30,10 @@ public class QuizController {
         return quizService.getAllQuizzes();
     }
 
-//    @GetMapping("{id}")
-//    public ResponseEntity<QuizShowDto> getResumeById(@PathVariable int id, Authentication auth) {
-//        return ResponseEntity.ok(quizService.getQuizById(id, auth));
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<QuizSingleShowDto> getQuizById(@PathVariable Integer id) {
+        return ResponseEntity.ok(quizService.getQuizById(id));
+    }
 //
 //    @PostMapping("{id}/solve")
 //    public HttpStatus sendSolution(@RequestBody List<Integer> solutions, @PathVariable int id, Authentication auth) {

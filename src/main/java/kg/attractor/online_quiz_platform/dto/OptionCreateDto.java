@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class OptionCreateDto {
     @NotBlank(message = "Option's text cannot be null or blank")
     private String optionText;
-
     @NotNull
     private Boolean isCorrect;
 }

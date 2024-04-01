@@ -16,7 +16,7 @@ public class OptionDao {
 
     public List<Option> getOptionsByQuestionId(int questionId) {
         String sql = """
-            select * from questions where quizId = ?;
+            select * from options where questionId = ?;
             """;
         return template.query(sql, new BeanPropertyRowMapper<>(Option.class), questionId);
     }
