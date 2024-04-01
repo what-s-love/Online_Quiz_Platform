@@ -18,14 +18,3 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
-              - column:
-                  name: parentId
-                  type: int
-                  constraints:
-                    nullable: true
-        - addForeignKeyConstraint:
-            baseTableName: categories
-            baseColumnNames: parentId
-            constraintName: fk_categories_parentId
-            referencedTableName: categories
-            referencedColumnNames: id

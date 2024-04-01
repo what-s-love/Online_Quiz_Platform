@@ -21,12 +21,15 @@ public class QuizDao {
     private final JdbcTemplate template;
     private final NamedParameterJdbcTemplate parametrizedTemplate;
 
-    public List<Quiz> getQuizzes() {
+    public List<Quiz> getAllQuizzes() {
         String sql = """
                 select * from quizzes;
                 """;
         return template.query(sql, new BeanPropertyRowMapper<>(Quiz.class));
     }
+
+
+
 
     public Optional<Quiz> getQuizById(int id) {
         String sql = """

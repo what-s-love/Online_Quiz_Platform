@@ -18,4 +18,12 @@ public class QuestionDao {
                 """;
         return template.query(sql, new BeanPropertyRowMapper<>(Question.class), quizId);
     }
+
+    public Integer getAmountById(Integer id) {
+        String sql = """
+                select count(*) from questions
+                where quizId = ?
+                """;
+        return template.queryForObject(sql, Integer.class, id);
+    }
 }

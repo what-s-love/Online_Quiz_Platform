@@ -33,8 +33,3 @@ databaseChangeLog:
                   type: boolean
                   constraints:
                     nullable: true
-              - column:
-                  name: type
-                  type: varchar(255)
-                  constraints:
-                    nullable: true

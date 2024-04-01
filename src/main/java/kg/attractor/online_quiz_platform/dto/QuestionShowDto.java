@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class QuestionShowDto {
-    private int id;
-    private int quizId;
+    private Integer id;
+    private Integer quizId;
     private String questionText;
 }

@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class OptionShowDto {
-    private int id;
-    private int questionId;
+    private Integer id;
+    private Integer questionId;
     private String optionText;
     private Boolean isCorrect;
 }

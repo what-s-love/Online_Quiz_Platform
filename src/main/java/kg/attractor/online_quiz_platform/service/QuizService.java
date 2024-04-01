@@ -6,10 +6,8 @@ import kg.attractor.online_quiz_platform.dao.QuestionDao;
 import kg.attractor.online_quiz_platform.dao.QuizDao;
 import kg.attractor.online_quiz_platform.dao.ResultDao;
 import kg.attractor.online_quiz_platform.dao.UserDao;
-import kg.attractor.online_quiz_platform.dto.OptionShowDto;
-import kg.attractor.online_quiz_platform.dto.QuestionShowDto;
-import kg.attractor.online_quiz_platform.dto.QuizDto;
-import kg.attractor.online_quiz_platform.dto.QuizShowDto;
+import kg.attractor.online_quiz_platform.dto.*;
+import kg.attractor.online_quiz_platform.exception.CategoryNotFoundException;
 import kg.attractor.online_quiz_platform.exception.UserNotFoundException;
 import kg.attractor.online_quiz_platform.model.Category;
 import kg.attractor.online_quiz_platform.model.Opt;
@@ -39,6 +37,26 @@ public class QuizService {
     private final CategoryDao categoryDao;
     private final OptionDao optionDao;
     private final ResultDao resultDao;
+
+    @SneakyThrows
+    public List<QuizShowListDto> getAllQuizzes() {
+        log.info("Got all quizzes!");
+        List<QuizShowListDto> quizShowListDtoList = new ArrayList<>();
+        List<Quiz> quizzes = quizDao.getAllQuizzes();
+
+        for (Quiz quiz : quizzes) {
+            QuizShowListDto quizShowListDto = QuizShowListDto.builder()
+                    .title(quiz.getTitle())
+                    .category(categoryDao.getCategoryById(quiz.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Can't find quiz with this category")).getName())
+                    .quantity(questionDao.getAmountById(quiz.getId()))
+                    .build();
+            quizShowListDtoList.add(quizShowListDto);
+
+        }
+        return quizShowListDtoList;
+    }
+
+
 
     public int createQuizAndReturnId(QuizDto quizDto, Authentication auth) {
         User user = getUserByAuth(auth);
@@ -76,10 +94,7 @@ public class QuizService {
         List<Question> questions = questionDao.getQuestionsByQuizId(quizId);
         return questions.size();
     }
-    @SneakyThrows
-    public List<QuizShowDto> getQuizzes() {
-        return modelsToDtos(quizDao.getQuizzes());
-    }
+
 
     @SneakyThrows
     public QuizShowDto getQuizById(int id, Authentication auth) {

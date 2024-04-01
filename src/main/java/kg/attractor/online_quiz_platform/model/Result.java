@@ -6,9 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Result {
-    private int id;
-    private int userId;
-    private int quizId;
+    private Integer id;
+    private Integer userId;
+    private Integer quizId;
     //0-100
     private double score;
 }

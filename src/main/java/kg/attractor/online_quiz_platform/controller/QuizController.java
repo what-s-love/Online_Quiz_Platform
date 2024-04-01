@@ -3,6 +3,7 @@ package kg.attractor.online_quiz_platform.controller;
 import jakarta.validation.Valid;
 import kg.attractor.online_quiz_platform.dto.QuizDto;
 import kg.attractor.online_quiz_platform.dto.QuizShowDto;
+import kg.attractor.online_quiz_platform.dto.QuizShowListDto;
 import kg.attractor.online_quiz_platform.dto.UserDto;
 import kg.attractor.online_quiz_platform.service.QuizService;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ public class QuizController {
     private final QuizService quizService;
 
     @GetMapping
-    public List<QuizShowDto> getQuizzes() {
-        return quizService.getQuizzes();
+    public List<QuizShowListDto> getQuizzes() {
+        return quizService.getAllQuizzes();
     }
 
     @PostMapping

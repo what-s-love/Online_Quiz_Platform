@@ -14,7 +14,7 @@ import java.util.Optional;
 public class CategoryDao {
     private final JdbcTemplate template;
 
-    public Optional<Category> getCategoryById(int id) {
+    public Optional<Category> getCategoryById(Integer id) {
         String sql = """
                 select * from categories where id = ?;
                 """;

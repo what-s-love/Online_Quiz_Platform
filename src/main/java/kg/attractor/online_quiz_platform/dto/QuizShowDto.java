@@ -9,11 +9,11 @@ import java.util.Map;
 @Data
 @Builder
 public class QuizShowDto {
-    private int id;
+    private Integer id;
     private String title;
     private String description;
     private String creatorName;
     private String categoryName;
-    private int questionsCount;
+    private Integer questionsCount;
     private Map<QuestionShowDto, List<OptionShowDto>> questions;
 }

@@ -7,13 +7,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -22,26 +17,31 @@ public class UserDao {
     private final JdbcTemplate template;
     private final NamedParameterJdbcTemplate parametrizedTemplate;
 
-    public int createUserAndReturnId(User user) {
+    public void createUser(User user) {
         String sql = """
-                INSERT INTO users (name, email, password, enabled, type)
-                values (:name, :email, :password, :enabled, :type);
+                insert into users(name, email, password, enabled)
+                values (:name, :email, :password, :type)
                 """;
-        MapSqlParameterSource params = new MapSqlParameterSource()
+        parametrizedTemplate.update(sql, new MapSqlParameterSource()
                 .addValue("name", user.getName())
                 .addValue("email", user.getEmail())
                 .addValue("password", user.getPassword())
-                .addValue("enabled", user.getEnabled())
-                .addValue("type", user.getType());
+                .addValue("enabled", true)
+        );
+    }
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        parametrizedTemplate.update(sql, params, keyHolder);
-        return Objects.requireNonNull(keyHolder.getKey()).intValue();
+    public boolean isExists(String email) {
+        String sql = """
+                select case when exists(select * from users
+                where email like ?)
+                then true else false end;
+                """;
+        return Boolean.TRUE.equals(template.queryForObject(sql, Boolean.class, email));
     }
 
     public Optional<User> getUserByEmail(String email) {
         String sql = """
-                select * from users where email = ?;
+                select * from users where email like ?;
                 """;
 
         return Optional.ofNullable(

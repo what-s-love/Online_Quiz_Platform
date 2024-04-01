@@ -6,10 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class User {
-    private int id;
+    private Integer id;
     private String name;
     private String email;
     private String password;
     private Boolean enabled;
-    private String type;
 }

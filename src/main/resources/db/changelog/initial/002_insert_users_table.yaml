@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - sql:
             sql: |
-             insert into users(name, email, password, enabled, type)
+             insert into users(name, email, password, enabled)
              VALUES
-             ('Alex','asdf@asdf.asdf', '$2a$12$gia1VaPRIlJ5rHQ6dI6ZkOUiFCDNRzWXqxybDny9j7LUveUfw3r2u', true, 'example'),
-             ('Jane', 'qwe@qwe.qwe', '$2a$12$R2WIT.PXQfBf.iHJCnl1RusjOWeIONtWXC5us4IDZB5o/SYLKpMqe', true, 'example');
+             ('Alex','asdf@asdf.asdf', '$2a$12$gia1VaPRIlJ5rHQ6dI6ZkOUiFCDNRzWXqxybDny9j7LUveUfw3r2u', true),
+             ('Jane', 'qwe@qwe.qwe', '$2a$12$R2WIT.PXQfBf.iHJCnl1RusjOWeIONtWXC5us4IDZB5o/SYLKpMqe', true);
