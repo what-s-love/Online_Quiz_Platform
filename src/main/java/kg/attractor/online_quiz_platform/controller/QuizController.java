@@ -1,6 +1,7 @@
 package kg.attractor.online_quiz_platform.controller;
 
 import jakarta.validation.Valid;
+import kg.attractor.online_quiz_platform.dto.AnswerListDto;
 import kg.attractor.online_quiz_platform.dto.QuizCreateDto;
 import kg.attractor.online_quiz_platform.dto.QuizShowListDto;
 import kg.attractor.online_quiz_platform.dto.QuizSingleShowDto;
@@ -34,10 +35,10 @@ public class QuizController {
     public ResponseEntity<QuizSingleShowDto> getQuizById(@PathVariable Integer id) {
         return ResponseEntity.ok(quizService.getQuizById(id));
     }
-//
-//    @PostMapping("{id}/solve")
-//    public HttpStatus sendSolution(@RequestBody List<Integer> solutions, @PathVariable int id, Authentication auth) {
-//        quizService.sendSolution(solutions, id, auth);
-//        return HttpStatus.OK;
-//    }
+
+    @PostMapping("{quizId}/solve")
+    public HttpStatus sendSolution(@PathVariable int quizId, @RequestBody @Valid AnswerListDto answerListDto, Authentication auth) {
+        quizService.solveQuiz(quizId, answerListDto, auth);
+        return HttpStatus.OK;
+    }
 }
