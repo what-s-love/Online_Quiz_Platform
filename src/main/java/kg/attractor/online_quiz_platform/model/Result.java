@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Data
 @Builder
-public class QuizResult {
+public class Result {
     private Integer id;
     private Integer userId;
     private Integer quizId;

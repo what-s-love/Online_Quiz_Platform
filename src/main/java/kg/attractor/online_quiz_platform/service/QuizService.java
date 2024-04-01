@@ -6,6 +6,12 @@ import kg.attractor.online_quiz_platform.exception.CategoryNotFoundException;
 import kg.attractor.online_quiz_platform.exception.QuizNotFoundException;
 import kg.attractor.online_quiz_platform.exception.UserNotFoundException;
 import kg.attractor.online_quiz_platform.model.*;
+import kg.attractor.online_quiz_platform.model.Category;
+import kg.attractor.online_quiz_platform.model.Question;
+import kg.attractor.online_quiz_platform.model.Quiz;
+import kg.attractor.online_quiz_platform.model.QuizReviews;
+import kg.attractor.online_quiz_platform.model.Result;
+import kg.attractor.online_quiz_platform.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +31,6 @@ public class QuizService {
     private final CategoryDao categoryDao;
     private final OptionDao optionDao;
     private final ResultDao resultDao;
-
     @SneakyThrows
     public List<QuizShowListDto> getAllQuizzes() {
         log.info("Got all quizzes!");
@@ -47,32 +52,38 @@ public class QuizService {
     @SneakyThrows
     public void createQuiz(QuizCreateDto quizCreateDto, Authentication authentication) {
         User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
-        Quiz quiz = new Quiz();
+    }
+    public String getResultByUserId(Long userId){
+        List<Result> results = resultDao.getResultsByUserId(userId);
+        List<ResultDto> dtos = new ArrayList<>();
+        List<Integer> scores = new ArrayList<>(); // Создаем список для хранения баллов
 
-        quiz.setTitle(quizCreateDto.getTitle());
-        quiz.setDescription(quizCreateDto.getDescription());
-        quiz.setCreatorId(mayBeUser.getId());
-        Category category = categoryDao.getCategoryByName(quizCreateDto.getCategory()).orElseThrow(() -> new CategoryNotFoundException("Can't find category with this name"));
-        quiz.setCategoryId(category.getId());
-        Integer quizId = quizDao.createQuizAndReturnId(quiz);
+        results.forEach(e -> {
+            dtos.add(ResultDto.builder()
+                    .quizId(e.getQuizId())
+                    .build());
+            scores.add((int) e.getScore()); // Добавляем балл в список
+        });
 
-        for (int i = 0; i < quizCreateDto.getQuestionCreateDtoList().size(); i++) {
-            Question question = new Question();
+        double average = scores.stream()
+                .mapToInt(Integer::intValue)
+                .average()
+                .orElse(0.0);
 
-            question.setQuizId(quizId);
-            question.setQuestionText(quizCreateDto.getQuestionCreateDtoList().get(i).getQuestionText());
-            Integer questionId = questionDao.createQuestion(question);
+        String msg = String.format("Общее количество пройденных тестов: %s%n" +
+                "Среднее количество баллов:%s%n", dtos.size(),average);
 
-            for (int j = 0; j < quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().size(); j++) {
-                Option option = new Option();
-                option.setQuestionId(questionId);
-                option.setOptionText(quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().get(j).getOptionText());
-                option.setIsCorrect(quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().get(j).getIsCorrect());
-                optionDao.createOption(option);
-            }
-        }
+        return msg;
+
     }
 
+    public void addVoteToQuiz(QuizReviewsDto quizReviewsDto, Long quizId){
+        QuizReviews quizReviews = new QuizReviews();
+        quizReviews.setEstimation(quizReviewsDto.getEstimation());
+        quizReviews.setNumberOfVotes(quizReviewsDto.getNumberOfVotes() + 1);
+        quizReviews.setQuizId(quizId);
+        quizDao.addVote(quizReviews);
+    }
     @SneakyThrows
     public QuizSingleShowDto getQuizById(Integer quizId) {
         Quiz quiz = quizDao.getQuizById(quizId).orElseThrow(() -> new QuizNotFoundException("Can't find quiz with this id: " + quizId));
@@ -143,7 +154,7 @@ public class QuizService {
 
         User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
 
-        QuizResult quizResult = QuizResult.builder()
+        Result quizResult = Result.builder()
                 .quizId(quizId)
                 .userId(mayBeUser.getId())
                 .score(percentageCorrect)

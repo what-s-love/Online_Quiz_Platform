@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: Creating new quiz review table
+      author: Atai
+      changes:
+        - createTable:
+            tableName: quizReviews
+            columns:
+              - column:
+                  name: id
+                  type: Long
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: quizId
+                  type: Long
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_quizId_review
+                    references: Quizzes(id)
+              - column:
+                  name: estimation
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: numberOfVotes
+                  type: integer
+                  constraints:
+                    nullable: false

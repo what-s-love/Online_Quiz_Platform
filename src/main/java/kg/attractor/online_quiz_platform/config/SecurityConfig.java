@@ -64,6 +64,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/quizzes").fullyAuthenticated()
+                        .requestMatchers(HttpMethod.GET,"users/**").fullyAuthenticated()
 
 //                        .requestMatchers(HttpMethod.POST, "/accounts/avatar").fullyAuthenticated()
 //
