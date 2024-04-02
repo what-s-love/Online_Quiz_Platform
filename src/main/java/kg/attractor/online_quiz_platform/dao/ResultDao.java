@@ -1,7 +1,9 @@
 package kg.attractor.online_quiz_platform.dao;
 
+import kg.attractor.online_quiz_platform.model.Option;
 import kg.attractor.online_quiz_platform.model.Result;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -35,5 +38,19 @@ public class ResultDao {
                 WHERE USERID = ? 
                 """;
         return template.query(sql, new BeanPropertyRowMapper<>(Result.class), userId);
+    }
+
+
+    public Optional<Result> getUsersResultById(Integer quizId, Integer userId) {
+        String sql = """
+                SELECT * FROM QuizResults
+                WHERE quizId = ? and userId = ?
+                """;
+        return Optional.ofNullable(
+                DataAccessUtils.singleResult(
+                        template.query(sql, new BeanPropertyRowMapper<>(Result.class), quizId, userId)
+                )
+        );
+
     }
 }

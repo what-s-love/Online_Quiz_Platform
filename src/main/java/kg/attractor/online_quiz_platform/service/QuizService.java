@@ -14,10 +14,12 @@ import kg.attractor.online_quiz_platform.model.Result;
 import kg.attractor.online_quiz_platform.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,21 +54,46 @@ public class QuizService {
     @SneakyThrows
     public void createQuiz(QuizCreateDto quizCreateDto, Authentication authentication) {
         User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
+        Quiz quiz = new Quiz();
+
+        quiz.setTitle(quizCreateDto.getTitle());
+        quiz.setDescription(quizCreateDto.getDescription());
+        quiz.setCreatorId(mayBeUser.getId());
+        Category category = categoryDao.getCategoryByName(quizCreateDto.getCategory()).orElseThrow(() -> new CategoryNotFoundException("Can't find category with this name"));
+        quiz.setCategoryId(category.getId());
+        Integer quizId = quizDao.createQuizAndReturnId(quiz);
+
+        for (int i = 0; i < quizCreateDto.getQuestionCreateDtoList().size(); i++) {
+            Question question = new Question();
+
+            question.setQuizId(quizId);
+            question.setQuestionText(quizCreateDto.getQuestionCreateDtoList().get(i).getQuestionText());
+            Integer questionId = questionDao.createQuestion(question);
+
+            for (int j = 0; j < quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().size(); j++) {
+                Option option = new Option();
+                option.setQuestionId(questionId);
+                option.setOptionText(quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().get(j).getOptionText());
+                option.setIsCorrect(quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().get(j).getIsCorrect());
+                optionDao.createOption(option);
+            }
+        }
     }
+
     public String getResultByUserId(Long userId){
         List<Result> results = resultDao.getResultsByUserId(userId);
         List<ResultDto> dtos = new ArrayList<>();
-        List<Integer> scores = new ArrayList<>(); // Создаем список для хранения баллов
+        List<Double> scores = new ArrayList<>(); // Создаем список для хранения баллов
 
         results.forEach(e -> {
             dtos.add(ResultDto.builder()
                     .quizId(e.getQuizId())
                     .build());
-            scores.add((int) e.getScore()); // Добавляем балл в список
+            scores.add(e.getScore()); // Добавляем балл в список
         });
 
         double average = scores.stream()
-                .mapToInt(Integer::intValue)
+                .mapToInt(Double::intValue)
                 .average()
                 .orElse(0.0);
 
@@ -74,7 +101,6 @@ public class QuizService {
                 "Среднее количество баллов:%s%n", dtos.size(),average);
 
         return msg;
-
     }
 
     public void addVoteToQuiz(QuizReviewsDto quizReviewsDto, Long quizId){
@@ -162,4 +188,48 @@ public class QuizService {
 
         resultDao.create(quizResult);
     }
+
+    @SneakyThrows
+    public QuizShowResultDto getResultsOfQuiz(Integer quizId, Authentication authentication) {
+        User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
+
+        Result quizResult = resultDao.getUsersResultById(quizId, mayBeUser.getId())
+                .orElseThrow(() -> new QuizNotFoundException("Can't find your quiz with this id: " + quizId));
+
+        List<Question> questions = questionDao.getQuestionsByQuizId(quizId);
+        List<ResultQuestionsDto> resultQuestionsDtoList = new ArrayList<>();
+        Integer totalQuestions = questions.size();
+
+        double score = quizResult.getScore();
+
+
+        for (Question question : questions) {
+            List<Option> options = optionDao.getOptionsByQuestionId(question.getId());
+            List<ResultOptionsDto> resultOptionsDtoList = new ArrayList<>();
+
+            for (Option option : options) {
+                ResultOptionsDto resultOptionsDto = ResultOptionsDto.builder()
+                        .optionText(option.getOptionText())
+                        .isCorrect(option.getIsCorrect())
+                        .build();
+
+                resultOptionsDtoList.add(resultOptionsDto);
+            }
+
+            ResultQuestionsDto resultQuestionsDto = ResultQuestionsDto.builder()
+                    .questionText(question.getQuestionText())
+                    .resultOptionsDtoList(resultOptionsDtoList)
+                    .build();
+
+            resultQuestionsDtoList.add(resultQuestionsDto);
+        }
+
+        return QuizShowResultDto.builder()
+                .title(quizDao.getQuizById(quizId).orElseThrow(() -> new QuizNotFoundException("Can't find quiz with this id: " + quizId)).getTitle())
+                .resultQuestionsDto(resultQuestionsDtoList)
+                .questionsCount(totalQuestions)
+                .score(score)
+                .build();
+    }
+
 }

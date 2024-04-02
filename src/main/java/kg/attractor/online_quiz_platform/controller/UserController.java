@@ -1,6 +1,5 @@
 package kg.attractor.online_quiz_platform.controller;
 
-import kg.attractor.online_quiz_platform.dto.ResultDto;
 import kg.attractor.online_quiz_platform.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

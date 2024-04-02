@@ -1,13 +1,7 @@
 package kg.attractor.online_quiz_platform.controller;
 
 import jakarta.validation.Valid;
-import kg.attractor.online_quiz_platform.dto.AnswerListDto;
-import kg.attractor.online_quiz_platform.dto.QuizCreateDto;
-import kg.attractor.online_quiz_platform.dto.QuizDto;
-import kg.attractor.online_quiz_platform.dto.QuizReviewsDto;
-import kg.attractor.online_quiz_platform.dto.QuizShowDto;
-import kg.attractor.online_quiz_platform.dto.QuizShowListDto;
-import kg.attractor.online_quiz_platform.dto.QuizSingleShowDto;
+import kg.attractor.online_quiz_platform.dto.*;
 import kg.attractor.online_quiz_platform.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,14 +34,19 @@ public class QuizController {
     }
 
     @PostMapping("{quizId}/solve")
-    public HttpStatus sendSolution(@PathVariable int quizId, @RequestBody @Valid AnswerListDto answerListDto, Authentication auth) {
+    public HttpStatus sendSolution(@PathVariable Integer quizId, @RequestBody @Valid AnswerListDto answerListDto, Authentication auth) {
         quizService.solveQuiz(quizId, answerListDto, auth);
         return HttpStatus.OK;
     }
 
     @PostMapping("{quizId}/rate")
-    public HttpStatus addVote(@RequestBody QuizReviewsDto quizReviewsDto, @PathVariable Long quizId){
+    public HttpStatus addVote(@RequestBody QuizReviewsDto quizReviewsDto, @PathVariable Long quizId) {
         quizService.addVoteToQuiz(quizReviewsDto, quizId);
         return HttpStatus.OK;
+    }
+
+    @GetMapping("/{quizId}/results")
+    public QuizShowResultDto getResultsOfQuiz(@PathVariable Integer quizId, Authentication authentication) {
+        return quizService.getResultsOfQuiz(quizId, authentication);
     }
 }

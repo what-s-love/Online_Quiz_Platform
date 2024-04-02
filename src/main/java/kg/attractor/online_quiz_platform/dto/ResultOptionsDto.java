@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResultDto {
-    private Integer id;
-    private Integer userId;
-    private Integer quizId;
-    private Double score;
+public class ResultOptionsDto {
+    private String optionText;
+    private Boolean isCorrect;
 }
