@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/quizzes").fullyAuthenticated()
                         .requestMatchers(HttpMethod.GET,"users/**").fullyAuthenticated()
+                        .requestMatchers(HttpMethod.GET,"users/leaderboard").permitAll()
 
 //                        .requestMatchers(HttpMethod.POST, "/accounts/avatar").fullyAuthenticated()
 //

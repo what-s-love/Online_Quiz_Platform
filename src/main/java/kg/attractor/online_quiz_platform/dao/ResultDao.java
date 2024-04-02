@@ -1,5 +1,6 @@
 package kg.attractor.online_quiz_platform.dao;
 
+import kg.attractor.online_quiz_platform.model.Leaderboard;
 import kg.attractor.online_quiz_platform.model.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -35,5 +36,14 @@ public class ResultDao {
                 WHERE USERID = ? 
                 """;
         return template.query(sql, new BeanPropertyRowMapper<>(Result.class), userId);
+    }
+
+    public List<Leaderboard> getLeaderBoard(){
+        String sql = """
+                SELECT * from QUIZRESULTS
+                inner join PUBLIC.USERS U on U.ID = QUIZRESULTS.USERID
+                order by SCORE desc;
+                """;
+        return template.query(sql, new BeanPropertyRowMapper<>(Leaderboard.class));
     }
 }
