@@ -14,12 +14,10 @@ import kg.attractor.online_quiz_platform.model.Result;
 import kg.attractor.online_quiz_platform.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,21 +53,17 @@ public class QuizService {
     public void createQuiz(QuizCreateDto quizCreateDto, Authentication authentication) {
         User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
         Quiz quiz = new Quiz();
-
         quiz.setTitle(quizCreateDto.getTitle());
         quiz.setDescription(quizCreateDto.getDescription());
         quiz.setCreatorId(mayBeUser.getId());
         Category category = categoryDao.getCategoryByName(quizCreateDto.getCategory()).orElseThrow(() -> new CategoryNotFoundException("Can't find category with this name"));
         quiz.setCategoryId(category.getId());
         Integer quizId = quizDao.createQuizAndReturnId(quiz);
-
         for (int i = 0; i < quizCreateDto.getQuestionCreateDtoList().size(); i++) {
             Question question = new Question();
-
             question.setQuizId(quizId);
             question.setQuestionText(quizCreateDto.getQuestionCreateDtoList().get(i).getQuestionText());
             Integer questionId = questionDao.createQuestion(question);
-
             for (int j = 0; j < quizCreateDto.getQuestionCreateDtoList().get(i).getOptionCreateDtoList().size(); j++) {
                 Option option = new Option();
                 option.setQuestionId(questionId);
@@ -99,8 +93,18 @@ public class QuizService {
 
         String msg = String.format("Общее количество пройденных тестов: %s%n" +
                 "Среднее количество баллов:%s%n", dtos.size(),average);
-
         return msg;
+    }
+
+    public List<LeaderboardDto> getLeaderboard(){
+        List<Leaderboard> leaderboards = resultDao.getLeaderBoard();
+        List<LeaderboardDto> dtos = new ArrayList<>();
+        leaderboards.forEach(e -> dtos.add(LeaderboardDto.builder()
+                        .name(e.getName())
+                        .quizId(e.getQuizId())
+                        .score(e.getScore())
+                        .build()));
+        return dtos;
     }
 
     public void addVoteToQuiz(QuizReviewsDto quizReviewsDto, Long quizId){

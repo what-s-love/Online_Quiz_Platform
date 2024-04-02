@@ -2,6 +2,11 @@ package kg.attractor.online_quiz_platform.controller;
 
 import jakarta.validation.Valid;
 import kg.attractor.online_quiz_platform.dto.*;
+import kg.attractor.online_quiz_platform.dto.AnswerListDto;
+import kg.attractor.online_quiz_platform.dto.QuizCreateDto;
+import kg.attractor.online_quiz_platform.dto.QuizReviewsDto;
+import kg.attractor.online_quiz_platform.dto.QuizShowListDto;
+import kg.attractor.online_quiz_platform.dto.QuizSingleShowDto;
 import kg.attractor.online_quiz_platform.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
