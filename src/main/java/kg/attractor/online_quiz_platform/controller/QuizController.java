@@ -49,4 +49,9 @@ public class QuizController {
     public QuizShowResultDto getResultsOfQuiz(@PathVariable Integer quizId, Authentication authentication) {
         return quizService.getResultsOfQuiz(quizId, authentication);
     }
+
+    @GetMapping("{quizId}/leaderboard")
+    public List<LeaderboardDto> getLeaderboard(@PathVariable Long quizId){
+        return quizService.getLeaderboard(quizId);
+    }
 }

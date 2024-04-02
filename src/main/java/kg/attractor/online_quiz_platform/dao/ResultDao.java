@@ -52,12 +52,13 @@ public class ResultDao {
                 )
         );
     }
-    public List<Leaderboard> getLeaderBoard(){
+    public List<Leaderboard> getLeaderBoard(Long quizId){
         String sql = """
-                SELECT * from QUIZRESULTS
-                inner join PUBLIC.USERS U on U.ID = QUIZRESULTS.USERID
-                order by SCORE desc;
+                SELECT * FROM QUIZRESULTS
+                 INNER JOIN PUBLIC.USERS U ON U.ID = QUIZRESULTS.USERID
+                 WHERE QUIZID = ?
+                 ORDER BY SCORE DESC;
                 """;
-        return template.query(sql, new BeanPropertyRowMapper<>(Leaderboard.class));
+        return template.query(sql, new BeanPropertyRowMapper<>(Leaderboard.class), quizId);
     }
 }

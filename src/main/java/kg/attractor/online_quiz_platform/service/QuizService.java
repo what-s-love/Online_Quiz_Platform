@@ -101,9 +101,9 @@ public class QuizService {
         return msg;
     }
 
-    public List<LeaderboardDto> getLeaderboard(){
+    public List<LeaderboardDto> getLeaderboard(Long quizId){
         log.info("Getting leaderboard");
-        List<Leaderboard> leaderboards = resultDao.getLeaderBoard();
+        List<Leaderboard> leaderboards = resultDao.getLeaderBoard(quizId);
         List<LeaderboardDto> dtos = new ArrayList<>();
         leaderboards.forEach(e -> dtos.add(LeaderboardDto.builder()
                         .name(e.getName())

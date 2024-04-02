@@ -22,8 +22,5 @@ public class UserController {
         return quizService.getResultByUserId(userId);
     }
 
-    @GetMapping("leaderboard")
-    public List<LeaderboardDto> getLeaderboard(){
-        return quizService.getLeaderboard();
-    }
+
 }
