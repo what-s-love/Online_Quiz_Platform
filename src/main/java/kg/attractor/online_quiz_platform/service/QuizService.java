@@ -113,6 +113,8 @@ public class QuizService {
         return dtos;
     }
 
+
+
     @SneakyThrows
     public void addVoteToQuiz(QuizReviewsDto quizReviewsDto, Integer quizId, Authentication authentication){
         log.info("Evaluation of the quiz after the game");
