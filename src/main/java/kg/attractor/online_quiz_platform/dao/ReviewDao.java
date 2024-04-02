@@ -14,7 +14,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewDao {
     private final JdbcTemplate template;
-    private final NamedParameterJdbcTemplate parametrizedTemplate;
 
     public Optional<QuizReviews> getQuizReviewsByQuizIdAndUserId(Integer quizId, Integer userId) {
         String sql = """

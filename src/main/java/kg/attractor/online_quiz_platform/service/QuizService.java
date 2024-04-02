@@ -41,7 +41,8 @@ public class QuizService {
         for (Quiz quiz : quizzes) {
             QuizShowListDto quizShowListDto = QuizShowListDto.builder()
                     .title(quiz.getTitle())
-                    .category(categoryDao.getCategoryById(quiz.getCategoryId()).orElseThrow(() -> new CategoryNotFoundException("Can't find quiz with this category")).getName())
+                    .category(categoryDao.getCategoryById(quiz.getCategoryId())
+                            .orElseThrow(() -> new CategoryNotFoundException("Can't find quiz with this category")).getName())
                     .quantity(questionDao.getAmountById(quiz.getId()))
                     .build();
             quizShowListDtoList.add(quizShowListDto);
@@ -52,12 +53,14 @@ public class QuizService {
 
     @SneakyThrows
     public void createQuiz(QuizCreateDto quizCreateDto, Authentication authentication) {
+        log.info("Creating quiz");
         User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
         Quiz quiz = new Quiz();
         quiz.setTitle(quizCreateDto.getTitle());
         quiz.setDescription(quizCreateDto.getDescription());
         quiz.setCreatorId(mayBeUser.getId());
-        Category category = categoryDao.getCategoryByName(quizCreateDto.getCategory()).orElseThrow(() -> new CategoryNotFoundException("Can't find category with this name"));
+        Category category = categoryDao.getCategoryByName(quizCreateDto.getCategory())
+                .orElseThrow(() -> new CategoryNotFoundException("Can't find category with this name"));
         quiz.setCategoryId(category.getId());
         Integer quizId = quizDao.createQuizAndReturnId(quiz);
         for (int i = 0; i < quizCreateDto.getQuestionCreateDtoList().size(); i++) {
@@ -76,15 +79,16 @@ public class QuizService {
     }
 
     public String getResultByUserId(Long userId){
+        log.info("Getting result by userId" + userId);
         List<Result> results = resultDao.getResultsByUserId(userId);
         List<ResultDto> dtos = new ArrayList<>();
-        List<Double> scores = new ArrayList<>(); // Создаем список для хранения баллов
+        List<Double> scores = new ArrayList<>();
 
         results.forEach(e -> {
             dtos.add(ResultDto.builder()
                     .quizId(e.getQuizId())
                     .build());
-            scores.add(e.getScore()); // Добавляем балл в список
+            scores.add(e.getScore());
         });
 
         double average = scores.stream()
@@ -98,6 +102,7 @@ public class QuizService {
     }
 
     public List<LeaderboardDto> getLeaderboard(){
+        log.info("Getting leaderboard");
         List<Leaderboard> leaderboards = resultDao.getLeaderBoard();
         List<LeaderboardDto> dtos = new ArrayList<>();
         leaderboards.forEach(e -> dtos.add(LeaderboardDto.builder()
@@ -110,7 +115,7 @@ public class QuizService {
 
     @SneakyThrows
     public void addVoteToQuiz(QuizReviewsDto quizReviewsDto, Integer quizId, Authentication authentication){
-
+        log.info("Evaluation of the quiz after the game");
         User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
         if (reviewDao.getQuizReviewsByQuizIdAndUserId(quizId, mayBeUser.getId()).isPresent()) {
             throw new RuntimeException("You have already rated this quiz");
@@ -127,6 +132,7 @@ public class QuizService {
     }
     @SneakyThrows
     public QuizSingleShowDto getQuizById(Integer quizId) {
+        log.info("Getting quiz by quizId" + quizId);
         Quiz quiz = quizDao.getQuizById(quizId).orElseThrow(() -> new QuizNotFoundException("Can't find quiz with this id: " + quizId));
 
         List<Question> questions = questionDao.getQuestionsByQuizId(quizId);
@@ -211,6 +217,7 @@ public class QuizService {
 
     @SneakyThrows
     public QuizShowResultDto getResultsOfQuiz(Integer quizId, Authentication authentication) {
+        log.info("Getting results of quiz");
         User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
 
         Result quizResult = resultDao.getUsersResultById(quizId, mayBeUser.getId())

@@ -22,9 +22,11 @@ public class UserService {
 
     @SneakyThrows
     public void createUser(UserCreateDto userCreateDto) {
+        log.info("Creating user");
         // Проверка существования пользователя по email
         if (userDao.isExists(userCreateDto.getEmail())) {
-            throw new RuntimeException("User with email " + userCreateDto.getEmail() + " already exists");
+            log.error("User with email " + userCreateDto.getEmail() + " already exists");
+            throw new RuntimeException();
         }
 
         User user = new User();
