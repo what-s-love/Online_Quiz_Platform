@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class QuizReviews {
-    private Long id;
-    private Long quizId;
-    private int estimation;
-    private int numberOfVotes;
+    private Integer id;
+    private Integer quizId;
+    private Integer userId;
+    private Integer estimation;
 }

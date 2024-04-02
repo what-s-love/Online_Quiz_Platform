@@ -31,6 +31,7 @@ public class QuizService {
     private final CategoryDao categoryDao;
     private final OptionDao optionDao;
     private final ResultDao resultDao;
+    private final ReviewDao reviewDao;
     @SneakyThrows
     public List<QuizShowListDto> getAllQuizzes() {
         log.info("Got all quizzes!");
@@ -107,11 +108,21 @@ public class QuizService {
         return dtos;
     }
 
-    public void addVoteToQuiz(QuizReviewsDto quizReviewsDto, Long quizId){
+    @SneakyThrows
+    public void addVoteToQuiz(QuizReviewsDto quizReviewsDto, Integer quizId, Authentication authentication){
+
+        User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
+        if (reviewDao.getQuizReviewsByQuizIdAndUserId(quizId, mayBeUser.getId()).isPresent()) {
+            throw new RuntimeException("You have already rated this quiz");
+        }
+
+        quizDao.getQuizById(quizId).orElseThrow(() -> new QuizNotFoundException("Cant' find quiz by this id"));
+
         QuizReviews quizReviews = new QuizReviews();
-        quizReviews.setEstimation(quizReviewsDto.getEstimation());
-        quizReviews.setNumberOfVotes(quizReviewsDto.getNumberOfVotes() + 1);
         quizReviews.setQuizId(quizId);
+        quizReviews.setUserId(mayBeUser.getId());
+        quizReviews.setEstimation(quizReviewsDto.getEstimation());
+
         quizDao.addVote(quizReviews);
     }
     @SneakyThrows
@@ -163,6 +174,12 @@ public class QuizService {
             throw new QuizNotFoundException("You should answer to all questions from this quiz");
         }
 
+        User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
+        if (resultDao.getUsersResultById(quizId, mayBeUser.getId()).isPresent()) {
+            throw new RuntimeException("You have already taken this quiz");
+        }
+
+
         for (AnswersDto answerDto : answerListDto.getAnswers()) {
             totalQuestions++;
             List<Option> options = optionDao.getOptionsByQuestionId(answerDto.getQuestionId());
@@ -182,7 +199,6 @@ public class QuizService {
 
         double percentageCorrect = ((double) correctAnswers / totalQuestions) * 100;
 
-        User mayBeUser = getUserFromAuth(authentication.getPrincipal().toString());
 
         Result quizResult = Result.builder()
                 .quizId(quizId)

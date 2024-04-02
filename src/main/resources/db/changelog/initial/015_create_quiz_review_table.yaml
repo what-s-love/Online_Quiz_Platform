@@ -8,25 +8,27 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: Long
+                  type: int
                   autoIncrement: true
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: quizId
-                  type: Long
+                  type: int
                   constraints:
                     nullable: false
                     foreignKeyName: fk_quizId_review
                     references: Quizzes(id)
               - column:
-                  name: estimation
-                  type: integer
+                  name: userId
+                  type: int
                   constraints:
                     nullable: false
+                    foreignKeyName: fk_userId_review
+                    references: users(id)
               - column:
-                  name: numberOfVotes
-                  type: integer
+                  name: estimation
+                  type: int
                   constraints:
                     nullable: false

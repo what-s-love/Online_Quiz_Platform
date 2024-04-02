@@ -1,13 +1,18 @@
 package kg.attractor.online_quiz_platform.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.*;
 
 @Data
+@Getter
+@Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class QuizReviewsDto {
-    private Long id;
-    private Long quizId;
-    private int estimation;
-    private int numberOfVotes;
+    @Min(1)
+    @Max(5)
+    private Integer estimation;
 }

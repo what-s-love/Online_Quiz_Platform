@@ -30,8 +30,6 @@ public class QuizDao {
     }
 
 
-
-
     public Optional<Quiz> getQuizById(int id) {
         String sql = """
                 select * from quizzes where id = ?;
@@ -60,15 +58,15 @@ public class QuizDao {
         return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
 
-    public void addVote(QuizReviews quizReviews){
+    public void addVote(QuizReviews quizReviews) {
         String sql = """
-           INSERT INTO QuizReviews (QUIZID, ESTIMATION, NUMBEROFVOTES)
-           VALUES (:quizId, :estimation, :numberOfVotes)
-            """;
+                INSERT INTO QuizReviews (QUIZID, USERID, ESTIMATION)
+                VALUES (:quizId, :userId, :estimation)
+                 """;
         parametrizedTemplate.update(sql, new MapSqlParameterSource()
                 .addValue("quizId", quizReviews.getQuizId())
-                .addValue("estimation", quizReviews.getEstimation())
-                .addValue("numberOfVotes", quizReviews.getNumberOfVotes()));
+                .addValue("userId", quizReviews.getUserId())
+                .addValue("estimation", quizReviews.getEstimation()));
     }
 
 }
